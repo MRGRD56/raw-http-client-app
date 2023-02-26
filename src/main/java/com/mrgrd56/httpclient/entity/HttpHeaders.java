@@ -1,5 +1,6 @@
 package com.mrgrd56.httpclient.entity;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,31 @@ public class HttpHeaders extends LinkedHashMap<String, List<String>> {
     }
 
     public String getHeader(String name) {
-        var headerEntries = get(name.toLowerCase());
+        var headerEntries = getHeaderEntries(name);
+        if (headerEntries == null) {
+            return null;
+        }
+
         return headerEntries.get(headerEntries.size() - 1);
+    }
+
+    public List<String> getHeaderEntries(String name) {
+        return get(name.toLowerCase());
+    }
+
+    public void addHeader(String name, String value) {
+        this.computeIfAbsent(name.toLowerCase(), k -> new ArrayList<>())
+                .add(value);
+    }
+
+    public void setHeader(String name, String value) {
+        var newValue = new ArrayList<String>();
+        newValue.add(value);
+        this.put(name.toLowerCase(), newValue);
+    }
+
+    public void removeHeader(String name) {
+        remove(name.toLowerCase());
     }
 
     public Integer getContentLength() {
@@ -51,6 +75,6 @@ public class HttpHeaders extends LinkedHashMap<String, List<String>> {
                         return String.format("%s: %s", formatHeaderName(header.getKey()), headerValue);
                     });
                 })
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining("\r\n"));
     }
 }

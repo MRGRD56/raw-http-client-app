@@ -1,10 +1,11 @@
 package com.mrgrd56.httpclient.response;
 
+import com.mrgrd56.httpclient.entity.HttpEntityFormatter;
 import com.mrgrd56.httpclient.entity.HttpHeaders;
 
-import java.nio.charset.StandardCharsets;
-
 public class HttpResponseEntity {
+    private static final HttpEntityFormatter httpEntityFormatter = new HttpEntityFormatter();
+
     private final String protocol;
     private final int statusCode;
     private final String statusMessage;
@@ -46,11 +47,11 @@ public class HttpResponseEntity {
 
     @Override
     public String toString() {
-        return String.format("%s %s %s\n%s\n\n%s",
+        return String.format("%s %s %s\r\n%s\r\n\r\n%s",
                 protocol,
                 statusCode,
                 statusMessage,
                 headers,
-                new String(body, StandardCharsets.UTF_8));
+                httpEntityFormatter.formatBody(body));
     }
 }
