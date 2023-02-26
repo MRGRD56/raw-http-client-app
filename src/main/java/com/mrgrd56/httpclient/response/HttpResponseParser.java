@@ -1,27 +1,12 @@
 package com.mrgrd56.httpclient.response;
 
 import com.mrgrd56.httpclient.entity.HttpHeaders;
-import com.mrgrd56.httpclient.entity.RawHttpEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HttpResponseParser {
-    public HttpResponseEntity parse(RawHttpEntity rawResponse) {
-        var responseBuilder = new HttpResponseEntityBuilder();
-
-        String startingLine = rawResponse.getStartingLine();
-        parseStartingLine(startingLine, responseBuilder);
-
-        responseBuilder.setHeaders(parseHeaders(rawResponse.getHeaders()));
-
-        responseBuilder.setBody(rawResponse.getBody());
-
-        return responseBuilder.build();
-    }
-
     public void parseStartingLine(String startingLine, HttpResponseEntityBuilder responseBuilder) {
         String[] parts = startingLine.split("\\s", 3);
         String protocol = parts[0];

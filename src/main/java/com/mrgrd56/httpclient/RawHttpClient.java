@@ -4,10 +4,12 @@ import com.mrgrd56.httpclient.entity.HttpHeaders;
 import com.mrgrd56.httpclient.response.HttpResponseEntity;
 import com.mrgrd56.httpclient.response.HttpResponseEntityBuilder;
 import com.mrgrd56.httpclient.response.HttpResponseParser;
-import com.mrgrd56.httpclient.entity.RawHttpEntity;
 
 import javax.net.SocketFactory;
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
