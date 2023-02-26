@@ -1,5 +1,8 @@
 package com.mrgrd56.httpclient.response;
 
+import com.mrgrd56.httpclient.entity.HttpHeaders;
+import com.mrgrd56.httpclient.entity.RawHttpEntity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +22,7 @@ public class HttpResponseParser {
         return responseBuilder.build();
     }
 
-    private void parseStartingLine(String startingLine, HttpResponseEntityBuilder responseBuilder) {
+    public void parseStartingLine(String startingLine, HttpResponseEntityBuilder responseBuilder) {
         String[] parts = startingLine.split("\\s", 3);
         String protocol = parts[0];
         int statusCode = Integer.parseInt(parts[1]);
@@ -30,12 +33,12 @@ public class HttpResponseParser {
         responseBuilder.setStatusMessage(statusMessage);
     }
 
-    private Map<String, List<String>> parseHeaders(List<String> headers) {
-        Map<String, List<String>> result = new HashMap<>();
+    public HttpHeaders parseHeaders(List<String> headers) {
+        HttpHeaders result = new HttpHeaders();
 
         for (var rawHeader : headers) {
             var header = parseHeader(rawHeader);
-            result.computeIfAbsent(header.getKey(), (k) -> new ArrayList<>()).addAll(header.getValue());
+            result.computeIfAbsent(header.getKey().toLowerCase(), (k) -> new ArrayList<>()).addAll(header.getValue());
         }
 
         return result;

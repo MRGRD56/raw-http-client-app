@@ -1,18 +1,19 @@
 package com.mrgrd56.httpclient;
 
+import com.mrgrd56.httpclient.entity.HttpHeaders;
 import com.mrgrd56.httpclient.response.HttpResponseEntity;
+import com.mrgrd56.httpclient.response.HttpResponseEntityBuilder;
 import com.mrgrd56.httpclient.response.HttpResponseParser;
-import com.mrgrd56.httpclient.response.RawHttpEntity;
+import com.mrgrd56.httpclient.entity.RawHttpEntity;
 
+import javax.net.SocketFactory;
 import java.io.*;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class RawHttpClient implements Closeable {
     private static final Charset CHARSET = StandardCharsets.UTF_8;
@@ -22,27 +23,19 @@ public class RawHttpClient implements Closeable {
     private final InputStream input;
     private final OutputStream output;
 
-    public RawHttpClient(String host, int port) throws IOException {
-        this.socket = new Socket(host, port);
+    public RawHttpClient(SocketFactory socketFactory, String host, int port) throws IOException {
+        this.socket = socketFactory.createSocket(host, port);
         this.input = this.socket.getInputStream();
         this.output = this.socket.getOutputStream();
     }
 
-    public RawHttpEntity requestRaw(byte[] request) {
+    public HttpResponseEntity request(byte[] request) {
         sendBytes(request);
         return receiveResponse();
     }
 
-    public RawHttpEntity requestRaw(String request) {
-        return requestRaw(stringToBytes(request));
-    }
-
-    public HttpResponseEntity request(byte[] request) {
-        return responseParser.parse(requestRaw(request));
-    }
-
     public HttpResponseEntity request(String request) {
-        return responseParser.parse(requestRaw(request));
+        return request(stringToBytes(request));
     }
 
     private void sendBytes(byte[] bytes) {
@@ -53,60 +46,49 @@ public class RawHttpClient implements Closeable {
         }
     }
 
-    private RawHttpEntity receiveResponse() {
-        try (var reader = new BufferedReader(new InputStreamReader(input, CHARSET))) {
-            String startingLine = reader.readLine();
-            List<String> headers = new ArrayList<>();
+    private HttpResponseEntity receiveResponse() {
+        var responseBuilder = new HttpResponseEntityBuilder();
 
-            String line;
-            while (!"".equals(line = reader.readLine())) {
-                headers.add(line);
-            }
+        try (var scanner = new Scanner(input, CHARSET)) {
+            String startingLine = scanner.nextLine();
+            responseParser.parseStartingLine(startingLine, responseBuilder);
 
-            byte[] body = readBody(reader);
+            var headers = responseParser.parseHeaders(readRawHeaders(scanner));
 
-            return new RawHttpEntity(startingLine, headers, body);
+            byte[] body = readBody(headers);
+
+            return responseBuilder
+                    .setHeaders(headers)
+                    .setBody(body)
+                    .build();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private byte[] readBody(BufferedReader reader) throws IOException {
-        List<byte[]> byteBuffers = new ArrayList<>();
+    private List<String> readRawHeaders(Scanner scanner) {
+        List<String> headers = new ArrayList<>();
 
-        CharBuffer charBuffer = CharBuffer.allocate(8092);
-
-        int totalBytesRead = 0;
-        while (reader.read(charBuffer) != -1) {
-            charBuffer.flip();
-            ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-            byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-            byteBuffers.add(bytes);
-            totalBytesRead += bytes.length;
-
-            charBuffer = CharBuffer.allocate(8092);
+        String line;
+        while (!"".equals(line = scanner.nextLine())) {
+            headers.add(line);
         }
 
-        byte[] body = new byte[totalBytesRead];
+        return headers;
+    }
 
-        int position = 0;
-        for (var buffer : byteBuffers) {
-            int bufferSize = buffer.length;
+    private byte[] readBody(HttpHeaders headers) throws IOException {
+        Integer contentLength = headers.getContentLength();
 
-            System.arraycopy(buffer, 0, body, position, bufferSize);
-
-            position += bufferSize;
+        if (contentLength == null) {
+            return input.readAllBytes();
+        } else {
+            return input.readNBytes(contentLength);
         }
-
-        return body;
     }
 
     private byte[] stringToBytes(String string) {
         return string.getBytes(CHARSET);
-    }
-
-    private String bytesToString(byte[] bytes) {
-        return new String(bytes, CHARSET);
     }
 
     @Override

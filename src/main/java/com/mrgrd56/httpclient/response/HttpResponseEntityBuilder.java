@@ -1,13 +1,12 @@
 package com.mrgrd56.httpclient.response;
 
-import java.util.List;
-import java.util.Map;
+import com.mrgrd56.httpclient.entity.HttpHeaders;
 
 public class HttpResponseEntityBuilder {
     private String protocol;
     private int statusCode;
     private String statusMessage;
-    private Map<String, List<String>> headers;
+    private HttpHeaders headers;
     private byte[] body;
 
     public HttpResponseEntityBuilder setProtocol(String protocol) {
@@ -25,7 +24,7 @@ public class HttpResponseEntityBuilder {
         return this;
     }
 
-    public HttpResponseEntityBuilder setHeaders(Map<String, List<String>> headers) {
+    public HttpResponseEntityBuilder setHeaders(HttpHeaders headers) {
         this.headers = headers;
         return this;
     }

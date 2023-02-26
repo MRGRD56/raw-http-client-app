@@ -2,18 +2,20 @@ package com.mrgrd56;
 
 import com.mrgrd56.httpclient.RawHttpClient;
 
-import java.nio.charset.StandardCharsets;
+import javax.net.ssl.SSLSocketFactory;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Program {
     public static void main(String[] args) throws Exception {
-        try (var client = new RawHttpClient("crudcrud.com", 80)) {
+        try (var client = new RawHttpClient(SSLSocketFactory.getDefault(), "styles.redditmedia.com", 443)) {
             var response = client.request("""
-                    GET /api/75ec2079dc05476681d2e5726ead626e/people HTTP/2
-                    Host: crudcrud.com
+                    GET /t5_3jtm62/styles/communityIcon_zdd7b6gax1aa1.png HTTP/1.2
+                    Host: styles.redditmedia.com
                     
                     """);
 
-            String responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+            Files.write(Path.of("C:\\Users\\SU\\test_mrgrd56_pic.png"), response.getBody());
 
             System.out.println(response);
         }

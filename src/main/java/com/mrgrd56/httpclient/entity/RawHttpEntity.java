@@ -1,4 +1,4 @@
-package com.mrgrd56.httpclient.response;
+package com.mrgrd56.httpclient.entity;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
