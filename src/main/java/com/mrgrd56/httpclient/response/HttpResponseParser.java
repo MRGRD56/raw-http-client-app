@@ -65,25 +65,6 @@ public class HttpResponseParser {
             return responseBuilder
                     .setBody(bodyStream.toByteArray())
                     .build();
-
-//            try (var scanner = new Scanner(input, charset).useDelimiter(HEADERS_SEPARATOR)) {
-//                String startingLine = scanner.nextLine();
-//                parseStartingLine(startingLine, responseBuilder);
-//
-//                var headers = parseHeaders(readRawHeaders(scanner));
-//
-//                byte[] body = readBody(input, headers);
-//                if (body.length == 0) {
-//                    body = null;
-//                }
-//
-//                return responseBuilder
-//                        .setHeaders(headers)
-//                        .setBody(body)
-//                        .build();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
