@@ -15,8 +15,8 @@ import java.util.Objects;
 
 public class Program {
     public static void main(String[] args) throws Exception {
-//        performRequest(HttpRequestEntity.get("https://stackoverflow.com/questions/605696/get-file-name-from-url"));
-//        performRequest(HttpRequestEntity.get("https://styles.redditmedia.com/t5_3jtm62/styles/communityIcon_zdd7b6gax1aa1.png"));
+        performRequest(HttpRequestEntity.get("https://stackoverflow.com/questions/605696/get-file-name-from-url"));
+        performRequest(HttpRequestEntity.get("https://styles.redditmedia.com/t5_3jtm62/styles/communityIcon_zdd7b6gax1aa1.png"));
         performRequest(HttpRequestEntity.get()
                 .url("http://localhost:9999")
                 .protocol("HTTP/1.1")

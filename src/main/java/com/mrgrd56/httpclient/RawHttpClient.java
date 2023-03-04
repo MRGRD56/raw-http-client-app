@@ -49,47 +49,7 @@ public class RawHttpClient implements Closeable {
     }
 
     private HttpResponseEntity receiveResponse() {
-        var responseBuilder = new HttpResponseEntityBuilder();
-
-        try (var scanner = new Scanner(input, CHARSET).useDelimiter("\r\n\r\n")) {
-            String startingLine = scanner.nextLine();
-            responseParser.parseStartingLine(startingLine, responseBuilder);
-
-            var headers = responseParser.parseHeaders(readRawHeaders(scanner));
-
-            byte[] body = readBody(headers);
-            if (body.length == 0) {
-                body = null;
-            }
-
-            return responseBuilder
-                    .setHeaders(headers)
-                    .setBody(body)
-                    .build();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<String> readRawHeaders(Scanner scanner) {
-        List<String> headers = new ArrayList<>();
-
-        String line;
-        while (!"".equals(line = scanner.nextLine())) {
-            headers.add(line);
-        }
-
-        return headers;
-    }
-
-    private byte[] readBody(HttpHeaders headers) throws IOException {
-        Integer contentLength = headers.getContentLength();
-
-        if (contentLength == null) {
-            return input.readAllBytes();
-        } else {
-            return input.readNBytes(contentLength);
-        }
+        return responseParser.parseResponse(input, CHARSET);
     }
 
     private byte[] stringToBytes(String string) {
