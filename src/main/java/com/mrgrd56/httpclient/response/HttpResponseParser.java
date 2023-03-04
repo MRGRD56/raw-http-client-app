@@ -96,25 +96,4 @@ public class HttpResponseParser {
         String[] parts = header.split(": ", 2);
         return Map.entry(parts[0], List.of(parts[1]));
     }
-
-    private List<String> readRawHeaders(Scanner scanner) {
-        List<String> headers = new ArrayList<>();
-
-        String line;
-        while (!"".equals(line = scanner.nextLine())) {
-            headers.add(line);
-        }
-
-        return headers;
-    }
-
-    private byte[] readBody(InputStream input, HttpHeaders headers) throws IOException {
-        Integer contentLength = headers.getContentLength();
-
-        if (contentLength == null) {
-            return input.readAllBytes();
-        } else {
-            return input.readNBytes(contentLength);
-        }
-    }
 }
